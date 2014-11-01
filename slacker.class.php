@@ -1,7 +1,5 @@
 <?php
 	
-	// Slacker: a simple post-back by for Slack.
-	
 	class Slacker {
 		
 		public $full_command;
