@@ -23,7 +23,6 @@
 		}
 		
 		function output() {
-
 			$out = $this->pref_prefix() . $this->content;
 			if (SLACKER_DEBUG) {
 				return $out;
