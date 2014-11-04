@@ -7,6 +7,7 @@
 		public $command_text;
 		public $user_name;
 		public $channel_name;
+		protected $webhook_settings;
 		protected $token;
 
 		function __construct() {
@@ -20,15 +21,39 @@
 			if ( ($this->token != SLACK_TOKEN) || (!$this->full_command) ) { 
 				$this->mute_error('unauthorized');
 			}
+			$this->webhook_settings = array(
+				"username" => SLACKER_BOT_NAME
+			);
 		}
 		
 		function output() {
 			$out = $this->pref_prefix() . $this->content;
-			if (SLACKER_DEBUG) {
-				return $out;
+			if (defined('SLACK_POSTBACK_TYPE')) {
+				if (SLACK_POSTBACK_TYPE == 1) {
+					if (SLACKER_DEBUG) {
+						return $out;
+					} else {
+						$this->run_curl("https://" . SLACK_HOSTNAME . ".slack.com/services/hooks/slackbot?token=" . SLACK_API_KEY . "&channel=%23" . SLACK_CHANNEL, "POST", $out);
+						return "";
+					}
+				} else {
+					if (defined('SLACK_WEBHOOK_URL')) {
+						$output_arr = array("text" => $out);
+						if (!empty($this->webhook_settings)) {
+							$output_arr = array_merge($output_arr, $this->webhook_settings);
+						}
+						if (SLACKER_DEBUG) {
+							return json_encode($output_arr);
+						} else {
+							$this->run_curl(SLACK_WEBHOOK_URL, "POST", json_encode($output_arr));
+							return "";
+						}
+					} else {
+						return "";
+					}
+				}
 			} else {
-				$this->run_curl("https://" . SLACK_HOSTNAME . ".slack.com/services/hooks/slackbot?token=" . SLACK_API_KEY . "&channel=%23" . SLACK_CHANNEL, "POST", $out);
-				return "";
+				return $out;
 			}
 		}
 
@@ -51,6 +76,14 @@
 		protected function mute_error($output="") {
 			echo (SLACKER_DEBUG) ? $output : "";
 			exit;
+		}
+		
+		protected function webhook_setting($config_var, $default_val) {
+			if (!empty($this->config['webhook_settings'][$config_var])) {
+				return $this->config['webhook_settings'][$config_var];
+			} else {
+				return $default_val;
+			}
 		}
 
 	}

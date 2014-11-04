@@ -3,7 +3,8 @@
 	class weatherext extends Slacker {
 
 		protected $content;
-		private $config;
+		protected $webhook_settings;
+		protected $config;
 		
 		function __construct() {
 			if (file_exists("config/".get_class($this).".php")) { 
@@ -18,6 +19,12 @@
 			$data_decoded = json_decode($data);
 			
 			if (!isset($data_decoded->response->error)) {
+				$this->webhook_settings = array(
+					"icon_url" => $this->webhook_setting("icon_url", ""),
+					"icon_emoji" => $this->webhook_setting("icon_emoji", ":earth_americas:"),
+					"username" => $this->webhook_setting("username", "weather-bot")
+				);
+				
 				$this->content = "getting extended weather for " . $data_decoded->{'current_observation'}->{'display_location'}->{'full'} . "... \n";
 				$forecast = $data_decoded->{'forecast'}->{'simpleforecast'};
 				foreach ($forecast->{'forecastday'} as $day) {

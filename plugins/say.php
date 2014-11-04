@@ -3,7 +3,8 @@
 	class say extends Slacker {
 		
 		protected $content;
-		private $config;
+		protected $webhook_settings;
+		protected $config;
 		
 		function __construct() {
 			if (file_exists("config/".get_class($this).".php")) { 
@@ -13,6 +14,13 @@
 				}
 			}
 			parent::__construct();
+			
+			$this->webhook_settings = array(
+				"icon_url" => $this->webhook_setting("icon_url", ""),
+				"icon_emoji" => $this->webhook_setting("icon_emoji", ":information_source:"),
+				"username" => $this->webhook_setting("username", "")
+			);
+			
 			$this->content = $this->command_text;
 		}
 

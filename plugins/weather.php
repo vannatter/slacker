@@ -3,7 +3,8 @@
 	class weather extends Slacker {
 
 		protected $content;
-		private $config;
+		protected $webhook_settings;
+		protected $config;
 		
 		function __construct() {
 			if (file_exists("config/".get_class($this).".php")) { 
@@ -18,6 +19,12 @@
 			$data_decoded = json_decode($data);
 			
 			if (!isset($data_decoded->response->error)) {
+				$this->webhook_settings = array(
+					"icon_url" => $this->webhook_setting("icon_url", $data_decoded->{'current_observation'}->{'icon_url'}),
+					"icon_emoji" => $this->webhook_setting("icon_emoji", ""),
+					"username" => $this->webhook_setting("username", "weather-bot")
+				);
+
 				$this->content = sprintf(
 					"currently %s and %s [ feels like %s ] in %s (%s)",
 					$data_decoded->{'current_observation'}->{'weather'},
