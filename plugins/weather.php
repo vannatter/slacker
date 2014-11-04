@@ -18,7 +18,14 @@
 			$data_decoded = json_decode($data);
 			
 			if (!isset($data_decoded->response->error)) {
-				$this->content = "currently " . $data_decoded->{'current_observation'}->{'temp_f'} . " and " . $data_decoded->{'current_observation'}->{'weather'} . " in " . $data_decoded->{'location'}->{'city'} . " (" . $this->command_text . ")";
+				$this->content = sprintf(
+					"currently %s and %s [ feels like %s ] in %s (%s)",
+					$data_decoded->{'current_observation'}->{'weather'},
+					$data_decoded->{'current_observation'}->{'temperature_string'},
+					$data_decoded->{'current_observation'}->{'feelslike_string'},
+					$data_decoded->{'current_observation'}->{'display_location'}->{'full'},
+					$this->command_text
+				);
 			} else {
 				$this->content = $data_decoded->response->error->description;
 			}

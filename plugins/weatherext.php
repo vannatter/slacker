@@ -21,7 +21,13 @@
 				$this->content = "getting extended weather for " . $data_decoded->{'current_observation'}->{'display_location'}->{'full'} . "... \n";
 				$forecast = $data_decoded->{'forecast'}->{'simpleforecast'};
 				foreach ($forecast->{'forecastday'} as $day) {
-					$this->content .= sprintf("%s %s F / %s F %s\n", $day->{'date'}->{'weekday'}, $day->{'high'}->{'fahrenheit'}, $day->{'low'}->{'fahrenheit'}, $day->{'conditions'});
+					$this->content .= sprintf(
+						"%s %s F / %s F %s\n",
+						$day->{'date'}->{'weekday'},
+						$day->{'high'}->{'fahrenheit'},
+						$day->{'low'}->{'fahrenheit'},
+						$day->{'conditions'}
+					);
 				}
 			} else {
 				$this->content = $data_decoded->response->error->description;
