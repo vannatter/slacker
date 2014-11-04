@@ -18,11 +18,6 @@
 	$plugin_name = trim(strtolower(strtok($_REQUEST['text'], ' ')));
 	if (class_exists($plugin_name)) {
 		$slacker = new $plugin_name;
-		
-		echo "<pre>";
-		print_r($slacker);
-		echo "</pre>";
-		
 		echo $slacker->output();
 	} else {
 		echo "@" . $_REQUEST['user_name'] . ", unknown command.";
