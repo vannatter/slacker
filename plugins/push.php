@@ -15,11 +15,9 @@
 			}
 			parent::__construct();
 
-			$this->webhook_settings = array(
-				"icon_url" => $this->webhook_setting("icon_url", ""),
-				"icon_emoji" => $this->webhook_setting("icon_emoji", ":memo:"),
-				"username" => $this->webhook_setting("username", "push-bot")
-			);
+			$this->webhook_setting("icon_url", "");
+			$this->webhook_setting("icon_emoji", ":memo:");
+			$this->webhook_setting("username", "push-bot");
 			
 			$this->content = "pushing " . $this->command_text . " to production .. ";
 			if (isset($this->config['repos'][$this->command_text])) {

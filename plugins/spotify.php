@@ -15,12 +15,10 @@
 			}
 			parent::__construct();
 
-			$this->webhook_settings = array(
-				"icon_url" => $this->webhook_setting("icon_url", "http://i.imgur.com/OJaGIQH.png"),
-				"icon_emoji" => $this->webhook_setting("icon_emoji", ""),
-				"username" => $this->webhook_setting("username", "spotify-bot")
-			);
-				
+			$this->webhook_setting("icon_url", "http://i.imgur.com/OJaGIQH.png");
+			$this->webhook_setting("icon_emoji", "");
+			$this->webhook_setting("username", "spotify-bot");
+							
 			$data = $this->run_curl("https://api.spotify.com/v1/search?q=" . urlencode($this->command_text) . "&type=artist,track&limit=1", "GET");
 			$data_decoded = json_decode($data);
 

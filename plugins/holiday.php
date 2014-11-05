@@ -15,11 +15,9 @@
 			}
 			parent::__construct();
 			
-			$this->webhook_settings = array(
-				"icon_url" => $this->webhook_setting("icon_url", ""),
-				"icon_emoji" => $this->webhook_setting("icon_emoji", ":gift:"),
-				"username" => $this->webhook_setting("username", "holiday-bot")
-			);
+			$this->webhook_setting("icon_url", "");
+			$this->webhook_setting("icon_emoji", ":gift:");
+			$this->webhook_setting("username", "holiday-bot");
 
 			$holidays = array(
 				array("First Foot Day and Z Day", "Run Up the Flagpole and See if Anybody Salutes It Day", "Festival of Sleep Day", "Trivia Day and Humiliation Day", "Bird Day", "Bean Day", "Old Rock Day", "National JoyGerm Day and Man Watcher's Day", "Play God Day", "Peculiar People Day", "National Step in a Puddle and Splash Your Friend Day", "Feast of Fabulous Wild Men Day", "Make Your Dream Come True Day and Blame Someone Else Day", "National Dress Up Your Pet Day", "Hat Day", "Hot and Spicy Food International Day and National Nothing Day", "Blessing of the Animals at the Cathedral Day", "Winnie the Pooh Day", "National Popcorn Day", "National Buttercrunch Day", "National Hugging Day", "National Answer Your Cat's Question Day", "National Handwriting Day, National Pie Day, and Measure Your Feet Day", "Eskimo Pie Patent Day", "Opposite Day", "Australia Day", "Thomas Crapper Day", "National Kazoo Day", "National Cornchip Day", "Escape Day", "National Popcorn Day and Child Labor Day"),

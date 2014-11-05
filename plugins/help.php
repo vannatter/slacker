@@ -15,11 +15,9 @@
 			}
 			parent::__construct();
 
-			$this->webhook_settings = array(
-				"icon_url" => $this->webhook_setting("icon_url", ""),
-				"icon_emoji" => $this->webhook_setting("icon_emoji", ":question:"),
-				"username" => $this->webhook_setting("username", "slacker-help")
-			);
+			$this->webhook_setting("icon_url", "");
+			$this->webhook_setting("icon_emoji", ":question:");
+			$this->webhook_setting("username", "slacker-help");
 			
 			$this->content = "commands available: ";			
 			$config_files = array_diff(scandir(SLACKER_CONFIG_DIR), array('..', '.', 'slacker.php'));;

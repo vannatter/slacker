@@ -15,11 +15,9 @@
 			}
 			parent::__construct();
 
-			$this->webhook_settings = array(
-				"icon_url" => $this->webhook_setting("icon_url", ""),
-				"icon_emoji" => $this->webhook_setting("icon_emoji", ":dog:"),
-				"username" => $this->webhook_setting("username", "pug-bot")
-			);
+			$this->webhook_setting("icon_url", "");
+			$this->webhook_setting("icon_emoji", ":dog:");
+			$this->webhook_setting("username", "pug-bot");
 			
 			$data = $this->run_curl("http://pugme.herokuapp.com/random", "GET");
 			$data_decoded = json_decode($data);

@@ -81,9 +81,13 @@
 		
 		protected function webhook_setting($config_var, $default_val) {
 			if (!empty($this->config['webhook_settings'][$config_var])) {
-				return $this->config['webhook_settings'][$config_var];
+				$this->webhook_settings[$config_var] = $this->config['webhook_settings'][$config_var];
 			} else {
-				return $default_val;
+				if ($default_val) {
+					$this->webhook_settings[$config_var] = $default_val;
+				} else {
+					unset($this->webhook_settings[$config_var]);
+				}
 			}
 		}
 
