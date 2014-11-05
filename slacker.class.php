@@ -22,7 +22,8 @@
 				$this->mute_error('unauthorized');
 			}
 			$this->webhook_settings = array(
-				"username" => SLACKER_BOT_NAME
+				"username" => SLACKER_BOT_NAME,
+				"link_names" => 1
 			);
 		}
 		
