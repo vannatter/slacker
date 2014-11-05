@@ -23,7 +23,8 @@
 			}
 			$this->webhook_settings = array(
 				"username" => SLACKER_BOT_NAME,
-				"link_names" => 1
+				"link_names" => 1,
+				"unfurl_links" => true
 			);
 		}
 		
