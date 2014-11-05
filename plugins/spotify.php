@@ -23,7 +23,7 @@
 			$data_decoded = json_decode($data);
 
 			if (count($data_decoded->tracks->items) > 0) {
-				$this->content = $this->command_text . "' found " . $data_decoded->tracks->items[0]->name . " by " . $data_decoded->tracks->items[0]->artists[0]->name . " - https://embed.spotify.com/?uri=" . $data_decoded->tracks->items[0]->uri;
+				$this->content = $this->command_text . "' found " . $data_decoded->tracks->items[0]->name . " by " . $data_decoded->tracks->items[0]->artists[0]->name . " - https://embed.spotify.com/?uri=" . $data_decoded->tracks->items[0]->uri . " " . $data_decoded->tracks->items[0]->uri;
 			} else {
 				$this->content = "can't find anything on spotify for '" . $this->command_text . "'!";
 			}
