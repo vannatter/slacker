@@ -14,21 +14,7 @@
 				}
 			}
 			parent::__construct();
-			
-/*
-			$this->webhook_settings = array(
-				"icon_url" => $this->webhook_setting("icon_url", ""),
-				"icon_emoji" => $this->webhook_setting("icon_emoji", ":information_source:"),
-				"username" => $this->webhook_setting("username", "")
-			);
-*/
-
-/*
-			$this->webhook_settings['icon_url']   = 'douchey';
-			$this->webhook_settings['icon_emoji'] = 'douchey';
-			$this->webhook_settings['username']   = $this->webhook_setting("username", "");
-*/
-			
+		
 			$this->webhook_setting("username", "");
 			$this->webhook_setting("icon_url", "");
 			$this->webhook_setting("icon_emoji", ":information_source:");
