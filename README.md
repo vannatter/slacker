@@ -61,4 +61,8 @@ Most of these settings should be self-explanatory:
 	'help_command' -- this is the text displayed when a user runs /trigger help
 	'webhook_settings' -- these are overrides for the default plugin options for different webhook settings like name, icon or emoji. 
 	
-	
+
+### Need help?
+
+Contact me: http://twitter.com/dustinvannatter or http://dustin.io/
+
