@@ -17,6 +17,10 @@
 			
 			$armory_path = explode(" ", trim($this->command_text));
 
+			$this->webhook_setting("icon_url", "");
+			$this->webhook_setting("icon_emoji", "");
+			$this->webhook_setting("username", "armory-bot");
+				
 			if ( (!isset($armory_path[0])) || (!isset($armory_path[1])) || (!isset($armory_path[2])) ) {
 				$this->content = "invalid armory character - try again.";
 			} else {
