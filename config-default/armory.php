@@ -2,7 +2,7 @@
 
 	$config_armory = array(
 
-		'help_command'   => '/bot armory [region (us/eu)] [server] [character]',
+		'help_command'   => '/bot armory [region (us/eu)] [server] [character] [command]',
 		'armory_api_key' => '',
 		'webhook_settings' => array(
 			'username' => 'armory-bot',
