@@ -1,6 +1,6 @@
 <?php
 	
-	class holiday extends Slacker {
+	class starwars extends Slacker {
 
 		protected $content;
 		protected $webhook_settings;
