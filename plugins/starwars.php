@@ -24,7 +24,7 @@
 			$days_remaining = floor($remain / 86400);
 			$hours_remaining = floor(($remain % 86400) / 3600);
 
-			$this->content = "There are " $days_remaining . " days and " . $hours_remaining . " hours remaining until Star Wars: Episode VI release!";
+			$this->content = "There are " . $days_remaining . " days and " . $hours_remaining . " hours remaining until Star Wars: Episode VI release!";
 		}
 
 	}
