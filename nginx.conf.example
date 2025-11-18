@@ -1,0 +1,128 @@
+# Slacker Bot - Nginx Configuration Example
+# Place this in your nginx server block or sites-available configuration
+
+server {
+    listen 80;
+    listen [::]:80;
+
+    # Use HTTPS in production!
+    # listen 443 ssl http2;
+    # listen [::]:443 ssl http2;
+    # ssl_certificate /path/to/cert.pem;
+    # ssl_certificate_key /path/to/key.pem;
+
+    server_name slacker.example.com;
+    root /var/www/slacker;
+    index index.php;
+
+    # Logging
+    access_log /var/log/nginx/slacker-access.log;
+    error_log /var/log/nginx/slacker-error.log;
+
+    # Security: Deny access to hidden files (except .well-known for Let's Encrypt)
+    location ~ /\.(?!well-known) {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Deny access to sensitive files and directories
+    location ~ ^/(\.env|\.env\.example|composer\.json|composer\.lock|\.git|\.gitignore|README\.md|SECURITY\.md) {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Deny access to config directory
+    location ^~ /config/ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Deny access to config-default directory (optional, for extra security)
+    location ^~ /config-default/ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Deny access to vendor directory
+    location ^~ /vendor/ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Deny direct access to plugin files
+    location ^~ /plugins/ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Deny direct access to slacker.class.php
+    location ~ ^/slacker\.class\.php$ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Only allow access to index.php
+    location / {
+        try_files $uri /index.php$is_args$args;
+    }
+
+    # PHP-FPM Configuration
+    location ~ ^/index\.php$ {
+        fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;  # Adjust PHP version as needed
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+
+        # PHP Security
+        fastcgi_param PHP_VALUE "display_errors=Off";
+        fastcgi_param PHP_VALUE "expose_php=Off";
+
+        # Timeouts
+        fastcgi_read_timeout 30s;
+        fastcgi_send_timeout 30s;
+    }
+
+    # Deny all other PHP files
+    location ~ \.php$ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Security Headers
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; font-src 'self'; connect-src 'self' https:;" always;
+
+    # Remove server signature
+    server_tokens off;
+
+    # Additional security: Rate limiting (optional)
+    # limit_req_zone $binary_remote_addr zone=slacker:10m rate=10r/s;
+    # limit_req zone=slacker burst=20 nodelay;
+
+    # Additional security: Restrict by IP (optional - for internal bots)
+    # allow 10.0.0.0/8;        # Your internal network
+    # allow 192.168.0.0/16;    # Your internal network
+    # allow 172.16.0.0/12;     # Your internal network
+    # deny all;
+}
+
+# SSL Configuration (recommended for production)
+# Uncomment and adjust as needed
+# ssl_protocols TLSv1.2 TLSv1.3;
+# ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384';
+# ssl_prefer_server_ciphers on;
+# ssl_session_cache shared:SSL:10m;
+# ssl_session_timeout 10m;
+# ssl_stapling on;
+# ssl_stapling_verify on;

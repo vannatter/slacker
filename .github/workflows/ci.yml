@@ -1,0 +1,144 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  lint:
+    name: PHP Syntax Check
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ['8.0', '8.1', '8.2', '8.3']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: curl, json
+        coverage: none
+
+    - name: Validate composer.json
+      run: composer validate --strict
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Check PHP syntax
+      run: find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+
+    - name: Check for security vulnerabilities
+      run: |
+        composer require --dev roave/security-advisories:dev-latest || true
+        composer audit || true
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: curl, json
+        coverage: none
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Check for exposed secrets
+      run: |
+        # Check for hardcoded tokens/secrets (basic check)
+        ! grep -rE "AKIA[0-9A-Z]{16}" --exclude-dir=vendor --exclude-dir=.git . || (echo "Found AWS key" && exit 1)
+        ! grep -rE "xox[baprs]-[0-9a-zA-Z-]+" --exclude-dir=vendor --exclude-dir=.git . || (echo "Found Slack token" && exit 1)
+
+    - name: Check file permissions
+      run: |
+        # Ensure no executable PHP files (should be 644, not 755)
+        find . -name "*.php" -perm /111 -not -path "./vendor/*" | tee /tmp/executable_files
+        if [ -s /tmp/executable_files ]; then
+          echo "Found executable PHP files (should be 644, not 755)"
+          exit 1
+        fi
+
+  test:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ['8.0', '8.1', '8.2', '8.3']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: curl, json
+        coverage: xdebug
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Create .env for testing
+      run: |
+        cp .env.example .env
+        sed -i 's/SLACK_TOKEN=.*/SLACK_TOKEN=test-token-12345/' .env
+        sed -i 's/SLACK_WEBHOOK_URL=.*/SLACK_WEBHOOK_URL=https:\/\/hooks.slack.com\/services\/TEST\/TEST\/TEST/' .env
+
+    - name: Run tests (if tests exist)
+      run: |
+        if [ -d "tests" ]; then
+          vendor/bin/phpunit
+        else
+          echo "No tests directory found - skipping tests"
+        fi
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: curl, json
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run security audit
+      run: composer audit
+
+    - name: Check for .env file in repo (should not exist)
+      run: |
+        if [ -f ".env" ]; then
+          echo "ERROR: .env file found in repository!"
+          echo "This file should only be .env.example"
+          exit 1
+        fi
+
+    - name: Verify .gitignore includes sensitive files
+      run: |
+        grep -q "^\.env$" .gitignore || (echo ".env not in .gitignore" && exit 1)
+        grep -q "^config/" .gitignore || (echo "config/ not in .gitignore" && exit 1)
+        echo "✓ .gitignore properly configured"

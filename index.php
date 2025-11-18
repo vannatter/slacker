@@ -5,6 +5,13 @@
 /// http://github.com/vannatter/slacker
 ///////////////////////////////////////////////////////////////////
 
+// Runtime PHP version check
+if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+    http_response_code(500);
+    die('Slacker requires PHP 8.0 or higher. Current version: ' . PHP_VERSION . PHP_EOL .
+        'Please upgrade your PHP installation or contact your hosting provider.');
+}
+
 declare(strict_types=1);
 
 // Require Composer autoloader

@@ -1,0 +1,83 @@
+# Slacker Bot - Apache Security Configuration
+# Requires mod_rewrite, mod_headers
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Deny access to sensitive files and directories
+    RewriteRule ^\.env$ - [F,L]
+    RewriteRule ^\.env\.example$ - [F,L]
+    RewriteRule ^composer\.(json|lock)$ - [F,L]
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^vendor/ - [F,L]
+    RewriteRule ^\.git/ - [F,L]
+    RewriteRule ^\.gitignore$ - [F,L]
+
+    # Prevent access to hidden files (except .well-known for Let's Encrypt)
+    RewriteCond %{REQUEST_URI} !^/\.well-known/
+    RewriteRule ^\.(.*)$ - [F,L]
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Enable XSS Protection (for older browsers)
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Prevent clickjacking
+    Header always set X-Frame-Options "DENY"
+
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Content Security Policy (adjust as needed)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; font-src 'self'; connect-src 'self' https:;"
+
+    # Remove server signature
+    Header always unset X-Powered-By
+    ServerSignature Off
+</IfModule>
+
+# PHP Security Settings
+<IfModule mod_php.c>
+    # Disable PHP version exposure
+    php_flag display_errors Off
+    php_flag expose_php Off
+
+    # Session security
+    php_value session.cookie_httponly 1
+    php_value session.cookie_secure 1
+    php_value session.cookie_samesite Strict
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Deny access to config directory
+<Directory "config">
+    Require all denied
+</Directory>
+
+# Deny access to vendor directory
+<Directory "vendor">
+    Require all denied
+</Directory>
+
+# Only allow access to index.php
+<FilesMatch "^(index\.php)$">
+    Require all granted
+</FilesMatch>
+
+# Deny access to all .php files except index.php
+<FilesMatch "\.php$">
+    <If "%{REQUEST_URI} !~ m#^/index\.php#">
+        Require all denied
+    </If>
+</FilesMatch>
+
+# Prevent access to backup and config files
+<FilesMatch "\.(bak|config|dist|fla|inc|ini|log|psd|sh|sql|swp|~)$">
+    Require all denied
+</FilesMatch>
