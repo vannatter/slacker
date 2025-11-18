@@ -17,7 +17,6 @@ Thumbs.db
 
 # Composer
 /vendor/
-composer.lock
 composer.phar
 
 # Testing
