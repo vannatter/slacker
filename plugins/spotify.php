@@ -15,7 +15,7 @@
 			}
 			parent::__construct();
 
-			$this->webhook_setting("icon_url", "http://i.imgur.com/OJaGIQH.png");
+			$this->webhook_setting("icon_url", "https://i.imgur.com/OJaGIQH.png");
 			$this->webhook_setting("icon_emoji", "");
 			$this->webhook_setting("username", "spotify-bot");
 							
