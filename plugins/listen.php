@@ -19,7 +19,7 @@
 			$this->webhook_setting("icon_emoji", ":musical_note:");
 			$this->webhook_setting("username", "listen-bot");
 			
-			$data = $this->run_curl("http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=" . urlencode($this->command_text) . "&api_key=" . $this->config['lastfm_api_key'] . "&format=json", "GET");
+			$data = $this->run_curl("https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=" . urlencode($this->command_text) . "&api_key=" . $this->config['lastfm_api_key'] . "&format=json", "GET");
 			$data_decoded = json_decode($data);
 			
 			if (!isset($data_decoded->error)) {

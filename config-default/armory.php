@@ -7,7 +7,7 @@
 		'webhook_settings' => array(
 			'username' => 'armory-bot',
 			'icon_emoji' => '',
-			'icon_url' => 'http://fc07.deviantart.net/fs71/f/2010/165/0/a/WoW_Cataclysm_Icon_by_ZliS.png'
+			'icon_url' => 'https://fc07.deviantart.net/fs71/f/2010/165/0/a/WoW_Cataclysm_Icon_by_ZliS.png'
 		)
 
 	);

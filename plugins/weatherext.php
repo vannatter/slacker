@@ -15,7 +15,7 @@
 			}
 			parent::__construct();
 
-			$data = $this->run_curl("http://api.wunderground.com/api/" . $this->config['wunderground_api_key']  . "/geolookup/conditions/forecast/q/IA/" . $this->command_text . ".json", "GET");
+			$data = $this->run_curl("https://api.wunderground.com/api/" . $this->config['wunderground_api_key']  . "/geolookup/conditions/forecast/q/IA/" . $this->command_text . ".json", "GET");
 			$data_decoded = json_decode($data);
 			
 			if (!isset($data_decoded->response->error)) {

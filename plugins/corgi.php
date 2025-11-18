@@ -19,7 +19,7 @@
 			$this->webhook_setting("icon_emoji", ":dog:");
 			$this->webhook_setting("username", "corgi-bot");
 
-			$data = $this->run_curl("http://corginator.herokuapp.com/random", "GET");
+			$data = $this->run_curl("https://corginator.herokuapp.com/random", "GET");
 			$data_decoded = json_decode($data);
 
 			if (isset($data_decoded->corgi)) {
