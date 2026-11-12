@@ -1,0 +1,24 @@
+# Create the app at https://api.slack.com/apps > Create New App > From a manifest,
+# paste this file, and replace the URL with where public/index.php is served.
+display_information:
+  name: Slacker
+  description: A simple slash-command bot
+  background_color: "#4a154b"
+features:
+  bot_user:
+    display_name: slacker
+    always_online: false
+  slash_commands:
+    - command: /bot
+      url: https://slacker.example.com/
+      description: Weather, dogs, holidays and more
+      usage_hint: help
+      should_escape: true
+oauth_config:
+  scopes:
+    bot:
+      - commands
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false

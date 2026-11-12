@@ -1,202 +1,108 @@
 # Slacker
 
-Simple post-back bot for Slack written in PHP.
+A simple slash-command bot for Slack, written in PHP.
 
-## What is Slacker?
+```
+/bot weather 10001
+☀️ Currently clear sky and 58°F (feels like 52°F) in New York, US
+```
 
-An extremely simple approach to a post-back bot for the amazing Slack service.
+## Commands
+
+| Command | What it does | Needs |
+|---|---|---|
+| `help` | Lists enabled commands (only you see it) | |
+| `say [text]` | Echoes text into the channel | |
+| `holiday` | Today's unofficial holiday | |
+| `countdown` | Days/hours until a configured date | `COUNTDOWN_DATE` |
+| `pug` / `corgi` | Random dog photo ([Dog CEO](https://dog.ceo/dog-api/)) | |
+| `weather [zip or city]` | Current conditions ([Open-Meteo](https://open-meteo.com/)) | |
+| `weatherext [zip or city]` | 5-day forecast | |
+| `listen [last.fm user]` | What someone is listening to | `LASTFM_API_KEY` |
+| `push [repo]` | Fires a deploy hook | `PUSH_REPOS`, `PUSH_ALLOWED_USERS` |
 
 ## Requirements
 
-- PHP 8.0 or higher
-- Composer for dependency management
-- PHP extensions: `curl`, `json`
-- A Slack workspace with API access
+- PHP 8.2+ with `curl` and `json`
+- Composer
+- An HTTPS URL that Slack can reach
 
-## Installation
+## Setup
 
-### 1. Clone the repository
+1. **Install**
 
-```bash
-git clone https://github.com/vannatter/slacker.git
-cd slacker
-```
+   ```bash
+   git clone https://github.com/vannatter/slacker.git && cd slacker
+   composer install --no-dev
+   cp .env.example .env
+   ```
 
-### 2. Install dependencies
+2. **Create the Slack app.** Go to <https://api.slack.com/apps>, choose **Create New App → From a manifest**,
+   paste [`slack-app-manifest.yml`](slack-app-manifest.yml), and set the slash command URL to your server.
+   Install the app to your workspace.
 
-```bash
-composer install
-```
+3. **Configure.** Copy the app's **Signing Secret** (Basic Information → App Credentials) into
+   `.env` as `SLACK_SIGNING_SECRET`. Fill in any other options you want; see [`.env.example`](.env.example).
 
-### 3. Configure your bot
+4. **Serve `public/`.** Point your web server's document root at `public/` (see
+   [`nginx.conf.example`](nginx.conf.example)). For local testing, run `composer serve` with a tunnel such as
+   `cloudflared tunnel --url http://127.0.0.1:8080`.
 
-Copy the example environment file:
+Slacker answers in the slash command's HTTP response. You don't need incoming webhooks, bot tokens or extra
+OAuth scopes beyond `commands`.
 
-```bash
-cp .env.example .env
-```
+## Writing a plugin
 
-Edit `.env` with your Slack credentials:
-
-```env
-SLACKER_BOT_NAME=slacker
-SLACKER_DEBUG=false
-RESPONSE_PREPEND_USER=true
-
-SLACK_HOSTNAME=your-workspace
-SLACK_TOKEN=your-slack-token-here
-SLACK_CHANNEL=general
-
-SLACK_POSTBACK_TYPE=webhook
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
-```
-
-### 4. Configure plugins (optional)
-
-Plugin configurations are in `config-default/`. Copy any plugin config you want to use to the `config/` directory and customize:
-
-```bash
-cp config-default/weather.php config/
-```
-
-## Security Improvements (v2.0)
-
-This version includes major security and modernization improvements:
-
-### Security
-- ✅ **Input Validation**: All user inputs are validated and sanitized
-- ✅ **Plugin Whitelist**: Prevents arbitrary class instantiation attacks
-- ✅ **SSL Verification**: All HTTPS connections verify SSL certificates
-- ✅ **Secure Headers**: Proper Content-Type headers for API requests
-- ✅ **Environment Variables**: Sensitive data stored in `.env` file (not in git)
-
-### Modernization
-- ✅ **PHP 8.0+ Compatible**: Removed deprecated `__autoload()` function
-- ✅ **Composer Support**: Modern dependency management with PSR-4 autoloading
-- ✅ **HTTPS Only**: All API calls use HTTPS
-- ✅ **Error Handling**: Comprehensive error handling and logging
-- ✅ **Timeout Protection**: HTTP requests have timeouts to prevent hanging
-
-## What can the bot do?
-
-Currently available plugins:
-
-- **help** - List all available commands
-- **weather** - Get current weather for a location
-- **weatherext** - Get extended weather forecast
-- **spotify** - Search for tracks on Spotify
-- **listen** - Show what someone is listening to (Last.fm)
-- **say** - Make the bot say something
-- **push** - Send push notifications
-- **pug** - Random pug pictures
-- **corgi** - Random corgi pictures
-- **holiday** - Check upcoming holidays
-- **armory** - World of Warcraft armory lookup
-- **starwars** - Star Wars countdown
-
-## Slack Integration Setup
-
-### Setting up Slash Commands
-
-1. Go to your Slack workspace settings
-2. Navigate to **Configure Integrations** → **Slash Commands**
-3. Add a new slash command (e.g., `/bot`)
-4. Point it to your Slacker installation URL
-5. Copy the **token** to your `.env` file as `SLACK_TOKEN`
-
-### Setting up Incoming Webhooks (Recommended)
-
-1. Go to **Configure Integrations** → **Incoming Webhooks**
-2. Add a new webhook
-3. Copy the **Webhook URL** to your `.env` file as `SLACK_WEBHOOK_URL`
-4. Set `SLACK_POSTBACK_TYPE=webhook` in your `.env`
-
-## Plugin Configuration
-
-Each plugin can have its own configuration file in the `config/` directory. Configuration options include:
-
-- `help_command` - Text displayed when a user runs `/bot help`
-- `webhook_settings` - Override default webhook settings (name, icon, emoji)
-- Plugin-specific API keys and settings
-
-Example plugin config (`config/weather.php`):
+Implement `Slacker\Plugin\Plugin` and register the plugin in `App::create()`:
 
 ```php
-<?php
+namespace Slacker\Plugin;
 
-$config_weather = array(
-    'help_command' => '/bot weather [zipcode]',
-    'wunderground_api_key' => 'your-api-key-here',
-    'webhook_settings' => array(
-        'username' => 'weather-bot',
-        'icon_emoji' => ':cloud:'
-    )
-);
-```
+use Slacker\Command;
+use Slacker\Reply;
 
-## Development
+final class Roll implements Plugin
+{
+    public function name(): string  { return 'roll'; }
+    public function usage(): string { return 'roll [sides]'; }
 
-### Running in Debug Mode
-
-Set `SLACKER_DEBUG=true` in your `.env` file to enable debug output.
-
-### Creating New Plugins
-
-1. Create a new PHP file in the `plugins/` directory
-2. Extend the `Slacker` class
-3. Add your plugin name to the whitelist in `index.php`
-4. Create a configuration file in `config-default/`
-
-Example plugin:
-
-```php
-<?php
-
-class example extends Slacker {
-    protected $content;
-    protected $config;
-
-    function __construct() {
-        if (file_exists("config/".get_class($this).".php")) {
-            include("config/".get_class($this).".php");
-            if (isset(${'config_'.get_class($this)})) {
-                $this->config = ${'config_'.get_class($this)};
-            }
-        }
-        parent::__construct();
-
-        // Your plugin logic here
-        $this->content = "Hello from example plugin!";
+    public function handle(Command $command): Reply
+    {
+        $sides = max(2, (int) $command->args ?: 6);
+        return Reply::channel(":game_die: {$command->mention()} rolled " . random_int(1, $sides));
     }
 }
 ```
 
-## Migration from v1.x
+- `Reply::channel()` posts to everyone. `Reply::ephemeral()` is shown only to the user who ran the command.
+- Pass any user-supplied text through `Reply::escape()`.
+- Inject `Slacker\Http\HttpClient` for API calls; the tests swap in `tests/FakeHttpClient.php`.
+- Slack waits at most **3 seconds** for a response, so keep outbound calls fast.
 
-If you're upgrading from the original version:
+## Development
 
-1. **Install Composer** if you haven't already
-2. Run `composer install` to install dependencies
-3. Copy `config/slacker.php` settings to `.env` (see `.env.example`)
-4. Update any custom plugins to handle potential `false` returns from `run_curl()`
-5. Add any custom plugins to the whitelist in `index.php` (line 39)
+```bash
+composer test       # PHPUnit
+composer analyse    # PHPStan
+composer serve      # php -S 127.0.0.1:8080 -t public
+```
 
-## How can I help?
+## Upgrading from 2.x
 
-Write plugins! We'd be happy to accept pull requests with new functionality.
+3.0 is a rewrite, and existing installs need these changes:
 
-Please ensure:
-- Code follows existing patterns
-- API calls use HTTPS
-- Proper error handling is included
-- Plugin is added to the whitelist in `index.php`
-
-## Need help?
-
-- Report issues: https://github.com/vannatter/slacker/issues
-- Contact: [@dustinvannatter](http://twitter.com/dustinvannatter)
-- Website: [dustin.io](http://dustin.io/)
+- **Docroot** moves from the repo root to `public/`.
+- **Auth**: `SLACK_TOKEN` (deprecated verification token) is replaced by `SLACK_SIGNING_SECRET`.
+- **Replies** go back directly in the HTTP response. `SLACK_WEBHOOK_URL`, `SLACK_POSTBACK_TYPE`,
+  `SLACK_API_KEY`, `SLACK_HOSTNAME` and `SLACK_CHANNEL` are gone.
+- **Config**: the `config/*.php` files are replaced by environment variables in `.env`.
+- **Plugins**:
+  - `weather` and `weatherext` now use Open-Meteo, so you don't need an API key.
+  - `pug` and `corgi` now use Dog CEO.
+  - `starwars` is now the configurable `countdown`.
+  - `push` requires `PUSH_ALLOWED_USERS`.
+  - `spotify` and `armory` were removed. Their APIs now need registered OAuth apps.
 
 ## License
 
-MIT License - feel free to use and modify as needed!
+MIT
